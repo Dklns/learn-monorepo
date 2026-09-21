@@ -2,7 +2,7 @@
 
 日期：2026-09-21
 前课：docs/mcp-monorepo-lesson-12.md
-状态：预测已提交并点评；等待用户建 GitHub 远端仓库、推送并跑首次 CI。
+状态：首次 CI 运行成功（用户提供截图：ci job succeeded in 25s）；待第二次运行验证 Actions cache 命中。
 
 ## 1. 问题背景
 
@@ -78,6 +78,13 @@ CI 只有：git 里的东西            3. pnpm install --frozen-lockfile
 
 - 呵护点：题 1 暴露“CI 环境 = 全新机器”的意识尚未落地，动手环节从 clone 后机器上有什么开始验证。
 - 记录性质：题为预测；frozen-lockfile 与 CI 缓存由实验验证。
+
+## 9. 首次 CI 运行（2026-09-21，用户截图）
+
+- 运行结果：ci job 成功，总耗时 25s。步骤：checkout(1s) → pnpm/action-setup(2s) → setup-node(1s) → actions/cache(1s) → pnpm install --frozen-lockfile(3s) → turbo build lint(8s) → Post 步骤（含 cache 保存）。
+- 教学判定：首跑 turbo 必为 MISS（本地 .turbo 不在 git 里，且远端无缓存），但 actions/cache 在 Post 阶段已将 .turbo 存入 GitHub 缓存库，为下次运行命中创造条件——待用户第二次运行验证。
+- 截图中两条 Annotation 均为平台层通知（actions 的 Node 20 弃用、ubuntu-latest 将迁移 Ubuntu 26），与用户配置无关；引导用户区分“自己的配置问题”与“平台告警”。
+- 记录：截图仅证实 Actions 页面显示；各步骤内部日志未展开，第二次运行时补充验证。
 
 ## 8. 证据边界
 
