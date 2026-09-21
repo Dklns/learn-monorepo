@@ -1,4 +1,4 @@
-// 教学示例：演示共享函数，不作为生产级金额处理方案。
+// 教学示例：演示共享函数，不作为生产级金额处理方案。真的假的
 export function formatPrice(amount: number): string {
   return `￥${amount.toFixed(2)}`;
 }

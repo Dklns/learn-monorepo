@@ -2,7 +2,7 @@
 
 日期：2026-09-21
 前课：docs/mcp-monorepo-lesson-12.md
-状态：首次 CI 运行成功（用户提供截图：ci job succeeded in 25s）；待第二次运行验证 Actions cache 命中。
+状态：单元 3 结课（2026-09-21）：首次运行 25s 全 MISS，第二次 17s 缓存恢复 + FULL TURBO（5/5 cached）；用户自供两张 Actions 截图。
 
 ## 1. 问题背景
 
@@ -85,6 +85,16 @@ CI 只有：git 里的东西            3. pnpm install --frozen-lockfile
 - 教学判定：首跑 turbo 必为 MISS（本地 .turbo 不在 git 里，且远端无缓存），但 actions/cache 在 Post 阶段已将 .turbo 存入 GitHub 缓存库，为下次运行命中创造条件——待用户第二次运行验证。
 - 截图中两条 Annotation 均为平台层通知（actions 的 Node 20 弃用、ubuntu-latest 将迁移 Ubuntu 26），与用户配置无关；引导用户区分“自己的配置问题”与“平台告警”。
 - 记录：截图仅证实 Actions 页面显示；各步骤内部日志未展开，第二次运行时补充验证。
+
+## 10. 第二次运行与单元 3 结课（2026-09-21，用户截图）
+
+- 运行结果：succeeded in 17s（首跑 25s）。
+- 缓存验证：actions/cache 步骤显示 “Cache restored from key: turbo-7ff09d02...”（首跑的 commit SHA key）；本次 push 是新提交，精确 key 不匹配，靠 restore-keys 前缀回退命中——教师预设的 “turbo-” 前缀起效。
+- turbo 输出：Tasks 5 successful（3 build + 2 lint），5 cached，31ms FULL TURBO；共享包无 lint 故 2 而非 3。
+- install 从 3s 降至 2s：setup-node 的 pnpm 下载缓存也在起效（两层缓存：依赖下载缓存 + turbo 任务缓存）。
+- 教学判定：CI 缓存闭环验证通过；用户完成“本地缓存 → CI 缓存 → 自动流水线”的全链路。
+- 单元 3 成果：frozen-lockfile 可复现安装、workflow 触发规则、job/steps 关系、Actions cache 保存与恢复、平台告警分辨。
+- 待后续：分支保护（强制 PR 绿）为可选配置；远程缓存、版本发布（单元 4）视需求启动。
 
 ## 8. 证据边界
 

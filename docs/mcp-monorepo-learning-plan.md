@@ -19,7 +19,15 @@
 - 单元 2 已结课（2026-09-20）：两个选择器方向验证正确、思考题正确；详见 docs/mcp-monorepo-lesson-11.md 第 9 节。
 - 续课已下发：docs/mcp-monorepo-lesson-12.md，Turborepo 本地缓存与输入哈希；等待用户提交三道预测题。
 - 单元 2 已全部结课（2026-09-21）：Turborepo 缓存、缓存键故障排查（.turbo 日志污染）、哈希链式失效、缓存恢复 dist、git init 均完成；详见 docs/mcp-monorepo-lesson-12.md 第 9、10 节。
-- 单元 3 已下发：docs/mcp-monorepo-lesson-13.md，CI（GitHub Actions + frozen-lockfile + turbo 缓存）；等待用户提交三道预测题；前置条件 git init 已满足，GitHub 远端仓库待建。
+- 单元 3 已结课（2026-09-21）：首次 CI 25s 全 MISS，第二次 17s 缓存恢复 + FULL TURBO（5/5）；frozen-lockfile、workflow 触发、Actions cache 双向验证完成。详见 docs/mcp-monorepo-lesson-13.md 第 9、10 节。
+
+## 11. 会话交接点（2026-09-21，供新会话恢复）
+
+- 当前位置：第二阶段单元 1–3 已结课；单元 4（版本发布）、单元 5（规则协作）需求触发型未启动。
+- 最近状态：用户已理解 FULL TURBO 5/5 = 3 build + 2 lint，以及 turbo 哈希输入的可见性边界（源码/配置可见，docs/.github 不可见；改注释也算改字节）。
+- 可选验证实验未做：改 shared 源码一字符推送，预期 CI 上 5 任务全 MISS（哈希传染在 CI 重演）；改 docs 则依旧 FULL TURBO。
+- 可选收尾：分支保护规则未配；速查图仍是第一阶段版本，可升级 v2（补依赖治理/任务图/缓存/CI）。
+- 新会话恢复方式：读本文件 + docs/mcp-monorepo-learning-profile.md + 最近讲义（lesson-10~13），即可继续授课。
 依据：docs/mcp-monorepo-learning-profile.md 中三轮访谈与文字情境题。
 
 ## 1. 为谁设计
