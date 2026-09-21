@@ -2,3 +2,8 @@
 export function formatPrice(amount: number): string {
   return `￥${amount.toFixed(2)}`;
 }
+
+// 没有意义的函数
+export function foo() {
+  return "学习中";
+}

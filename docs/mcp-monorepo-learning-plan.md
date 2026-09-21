@@ -18,6 +18,8 @@
 - 单元 2 已下发：docs/mcp-monorepo-lesson-11.md，任务编排（pnpm 拓扑序与选择器，缓存问题留给 Turborepo）；等待用户提交三道预测题。
 - 单元 2 已结课（2026-09-20）：两个选择器方向验证正确、思考题正确；详见 docs/mcp-monorepo-lesson-11.md 第 9 节。
 - 续课已下发：docs/mcp-monorepo-lesson-12.md，Turborepo 本地缓存与输入哈希；等待用户提交三道预测题。
+- 单元 2 已全部结课（2026-09-21）：Turborepo 缓存、缓存键故障排查（.turbo 日志污染）、哈希链式失效、缓存恢复 dist、git init 均完成；详见 docs/mcp-monorepo-lesson-12.md 第 9、10 节。
+- 单元 3 已下发：docs/mcp-monorepo-lesson-13.md，CI（GitHub Actions + frozen-lockfile + turbo 缓存）；等待用户提交三道预测题；前置条件 git init 已满足，GitHub 远端仓库待建。
 依据：docs/mcp-monorepo-learning-profile.md 中三轮访谈与文字情境题。
 
 ## 1. 为谁设计
