@@ -1,0 +1,4 @@
+# 练习：补上 apps 与 packages 下的成员路径规则。
+packages: 
+  - 'packages/*'
+  - 'apps/*'
