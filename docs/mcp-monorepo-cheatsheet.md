@@ -1,8 +1,9 @@
-# Monorepo 速查图（第一阶段总结）
+# Monorepo 速查图 v2（第一、二阶段总结）
 
-日期：2026-09-20
-依据：docs/mcp-monorepo-lesson-01.md 至 docs/mcp-monorepo-lesson-08.md 及其实验记录
+日期：2026-09-21（v1：2026-09-20）
+依据：docs/mcp-monorepo-lesson-01.md 至 docs/mcp-monorepo-lesson-14.md 及其实验记录
 用途：日常查阅；不是教程，每条背后都有课程证据，细节回看对应讲义。
+v2 新增：第 8–12 节（依赖治理、任务编排、Turborepo 缓存、CI、第二阶段易错点）。
 
 ## 1. 一张图：两种布局
 
@@ -67,11 +68,74 @@ tsconfig（rootDir/outDir）决定 产物文件在哪 → package.json 的 expor
 
 不适合合仓：需要仓库外消费的包、权限边界不同的团队、升级节奏必须完全独立的项目。
 
-## 7. 本次学习中修正过的认知（个人易错点）
+## 7. 学习中修正过的认知·第一阶段（个人易错点）
 
 - "热更新" ≠ 依赖热更新：页面自动刷新源于 Vite 对产物文件的监听。
 - 产物内容变化不需要重新安装依赖；只有依赖声明本身变化才需要。
-- CI 在 monorepo 中通常只配一份，难点是只跑受影响项目（任务编排工具的用武之地，暂缓学习）。
 - 同一次提交 ≠ 多个线上系统原子部署。
 
-## 测试用标题
+## 8. 依赖治理：谁能 import 谁（lesson-10）
+
+```text
+期望的依赖方向（唯一合法方向）：
+  apps/a ──┐
+           ├──包名导入──→ packages/shared ──→ zod 等第三方
+  apps/b ──┘
+越界方式：相对路径 ../../packages/shared/src（绕过 exports）、跨应用 ../../a/src/...
+```
+
+- 边界靠"声明 + 机器强制"维持；物理可达 ≠ 应该可达。
+- 两条互补的 lint 规则：
+  - `import/no-relative-packages`：强制包名导入。**规则挂载 ≠ 生效**——默认解析器不认 .ts 时静默跳过，需 `eslint-import-resolver-typescript` + flat config 的 `settings["import/resolver"]`。
+  - `no-restricted-imports`：字符串模式匹配，拦跨应用路径；pattern 要覆盖正确写法（`../../a/**`）和笔误写法（`../a/**`）。
+- 失效模式互补：解析型对解析失败的路径静默放过；匹配型不看路径是否存在。越界代码最好同时触网。
+
+## 9. 任务编排：顺序与范围（lesson-11）
+
+- 拓扑序：`pnpm -r run build` 按依赖图自动排队，无需手写顺序；不违反依赖关系的排队方式都合法。
+- 选择器方向（实测）：
+  - `--filter ...@learn/shared` = shared 及其**依赖者**（A、B）→ 改共享包后的重建范围用这个；
+  - `--filter @learn/shared...` = shared 及其**依赖**（无本地依赖时仅 shared）。
+- 任务图只含 workspace 内的包；zod 等外部依赖不进图。
+- 失败传染方向：沿"被谁依赖"向消费方传播，不向它依赖的包传播；CI 中任一失败都阻塞合并。
+- pnpm 解决"顺序"和"范围"，不解决"没变就跳过"——每次都真实执行。
+
+## 10. Turborepo 缓存：输入哈希与传染边界（lesson-12、14）
+
+```text
+一次构建 = f(输入) → 输出
+输入（做内容哈希）：包内源码 + 依赖版本/锁文件 + 相关配置 + 环境变量
+                  + 依赖包的哈希（沿任务图 dependsOn 继承，链式）
+命中 → dist 与日志都从 .turbo/cache 恢复（replaying logs），构建脚本不执行
+```
+
+- **内容哈希模型，不是差量比对**："改没改"是哈希比对的推论，不记录历史状态；这也是跨分支、跨机器（远程缓存）复用的前提。
+- **传染沿任务依赖边，不沿包依赖盲目扩散**（lesson-14 实测：改 shared → build 链 3/5 MISS，lint 因 `lint: {}` 无依赖边而 cached）。想让某任务随依赖失效，需显式声明依赖边或扩大 inputs。
+- 哈希输入可见性边界：源码、相关配置可见；docs/、README、.github/ 不可见——改注释（改字节）算变，改文档不算。
+- 缓存键治理：键必须只含真正影响产物的输入。踩过的坑：`.turbo/turbo-build.log`（turbo 自写日志）污染哈希 → 自指死循环全 MISS；.gitignore 加 `.turbo/` 修复。turbo 为 git 仓库设计。
+- dist 可再生：从 src 重构建、或从缓存恢复；src 才是事实源——也是 dist 能进 .gitignore 的原因。
+
+## 11. CI：可复现安装 + 缓存接力（lesson-13、14）
+
+```text
+git push → 全新机器：checkout → pnpm/action-setup → setup-node
+        → actions/cache（恢复 .turbo）→ pnpm install --frozen-lockfile
+        → turbo build lint（按哈希比对决定 MISS/cached）→ 全绿才许合并
+```
+
+- `--frozen-lockfile`：锁文件与 manifest 不同步直接报错——"可复现安装"在 CI 的落点；CI 机器只有 git 里的东西，install 是必经第一步。
+- 两层缓存：setup-node 的 pnpm 下载缓存 + actions/cache 持久化 .turbo。
+- **缓存键三层模型（实测）**：
+  1. `key: turbo-<SHA>` 是搬运地址（满足唯一性、便于人读），不是正确性来源；
+  2. 精确 key 不匹配时 `restore-keys: turbo-` 前缀回退，取**最近一份**快照——快照是累积的，最新代 = 历代条目的超集，所以"只取最近一份"就够；
+  3. 命中与否由 turbo 拿任务哈希进快照里比对决定：取错快照只慢不错，缓存是纯优化。
+- 平台告警（如 Node 20 弃用）与自己的配置问题要分清。
+- 推送即实验：任何一次 push 都在检验"哪些任务该重跑"。
+
+## 12. 学习中修正过的认知·第二阶段（个人易错点）
+
+- "改 shared → 全部任务重跑"被实测修正为"build 链重跑，lint 不传染"：传染范围 = 任务图里的边。
+- "配置正确" ≠ "检查生效"：规则挂载了，解析器缺失时照样静默跳过（lesson-10）。
+- 差量比对 ≠ 内容哈希：turbo 不记录"改没改"，只比对输入哈希（lesson-12）。
+- 精确缓存 key 不匹配 ≠ 缓存没用上：key 管搬运，哈希管使用（lesson-14）。
+- 本地钩子可被绕过，CI 才是强制执行点：规则要"合并前机器自动跑"才算数（lesson-10 → 13 主线）。

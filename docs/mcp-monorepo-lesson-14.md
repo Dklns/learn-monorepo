@@ -51,7 +51,7 @@ git push ──→ 全新机器 checkout ──→ actions/cache 按 restore-key
 
 | 题 | 判定 | 说明 |
 | --- | --- | --- |
-| 1 | 通过 | 5/5 MISS 正确；归因正确——B 的哈希输入包含依赖（shared）的哈希，shared 变 → B 的输入变。这正是第 12 课"链式失效"在 CI 的复述，且用户主动指出了"B 源码未动但仍重跑"的原因 |
+| 1 | 通过（后经实验修正，见第 9 节） | 5/5 MISS 的归因逻辑正确（B 的哈希输入含依赖哈希）；实测为 3/5 MISS + 2 cached：传染只沿任务依赖边传播，lint 无依赖边不传染。判定修正记录在第 9 节 |
 | 2 | 结论与理由通过，追问合理 | FULL TURBO 与"docs 不影响输入哈希"正确。分界线即第 12 课的可见性边界：turbo 哈希的输入 = 各任务涉及的源码、相关配置、依赖的哈希；docs、README、.github 等不进入任何任务的输入，改多少字节都不传染。反过来，进入输入的文件哪怕改一个注释（改字节）也算变 |
 | 3 | 两对一缺 | key 格式（turbo-<SHA>）与精确匹配失败均正确。缺的一环：restore-keys 前缀回退——key: turbo-<新SHA> 匹配不上时，按 restore-keys 的 `turbo-` 前缀取最近一次缓存，把上一次运行存下的 .turbo 恢复到机器上；turbo 再逐任务比对哈希，全命中 → FULL TURBO。即：**Actions cache 管"把缓存运到机器"，turbo 管"判断能不能用"，两层各司其职** |
 
@@ -103,12 +103,12 @@ git push ──→ 全新机器 checkout ──→ actions/cache 按 restore-key
 
 预期现象与判读以实际运行为准；红了就原样贴日志，陪同读。
 
-## 5. 本课要点（先留白，实验后回填）
+## 5. 本课要点（实验后回填，2026-09-21）
 
-- 哈希传染不依赖本地历史：CI 的干净机器照常复演，因为它算的是同样的输入。
-- 缓存键的精确匹配与 restore-keys 前缀回退：key 绑定 commit SHA，
-  但缓存内容按任务哈希存取，所以"精确 key 不匹配"仍可能 FULL TURBO。
-- 推送即实验：从现在起，任何一次 push 都是一次"哪些任务该重跑"的检验。
+- 哈希传染沿**任务依赖边**传播，不沿包依赖盲目扩散：build 因 `dependsOn: ["^build"]` 链式失效；lint 是空配置（无依赖边、默认输入），哈希只含本包源码，shared 改动不传染 lint。
+- restore-keys 前缀回退两次实测生效：两次推送的精确 key 均不存在，均取到上一次运行的快照。
+- Actions cache（搬运，按 key/前缀）与 turbo（使用，按任务哈希）分工得到实测支持：第二轮精确 key 不匹配仍 FULL TURBO 5/5。
+- CI 残余耗时在环境准备（checkout/setup/install 约 8s），turbo 本身仅 25ms；再快需远程缓存或更细的 setup 缓存，收益有限。
 
 ## 6. 提交内容
 
@@ -126,3 +126,23 @@ git push ──→ 全新机器 checkout ──→ actions/cache 按 restore-key
 - GitHub Actions 缓存行为与 turbo 版本相关，以实际输出为准；
 - 截图证实页面显示，关键日志（Cache restored、turbo Tasks 行）需展开核对；
 - 实验结果记入本文件与路线第 10 节，作为第二阶段主线收官证据。
+
+## 9. 第一轮运行：改 shared 源码（2026-09-21，用户截图）
+
+- commit 0be20fd“改 shared 源码”（同次提交还包含 docs 讲义更新，不影响判断：docs 非任何任务的输入）。
+- 缓存：Cache hit for restore-key: turbo-9c038066638800dd575fbb083ca5cb2133ae2f2 = 上一提交 9c03806“修改 .gitignore”的存档；本次精确 key 不存在，前缀回退生效。
+- turbo 输出：Tasks 5 successful，**Cached: 2 cached, 5 total**，Time 5.238s；运行总时长 20s（turbo 步骤 6s）。
+- 实际分布：MISS 的 3 个为 learn/shared:build、learn/app-b:build、learn/app-a:build（沿 `dependsOn: ["^build"]` 链）；cached 的 2 个为 app-a:lint、app-b:lint。
+- **预测修正（教师与用户同错）**：双方均预测 5/5 MISS，实测 3/5。原因：turbo.json 中 `lint: {}` 为空配置——无 dependsOn、默认输入，其哈希只含本包源码；哈希传染只沿任务依赖边传播。第 12 课“改 shared 一字符全 MISS”的表述修正为“build 链全 MISS；无依赖边的任务不传染”。
+- 教益：传染范围 = 任务图里的边，而非“改了共享包就全部重跑”。这本身是设计优点：lint 检查源码、不消费 build 产物，理应不重跑；若希望 lint 随依赖失效，需显式声明依赖边（如 `dependsOn: ["^build"]`）或扩大 inputs——按需设计，不是默认行为。
+
+## 10. 第二轮运行与收官结课（2026-09-21，用户截图）
+
+- commit 943ec44“只改 docs”（cheatsheet +2 行）。
+- 缓存：Cache restored from key: turbo-0be20fd1a9bea14a1151380b4a58365c7fd3e26b1 = 第一轮 commit 0be20fd 的存档；本次精确 key 不匹配，前缀回退。
+- turbo 输出：5 successful，**5 cached**，25ms FULL TURBO；运行总时长 17s（turbo 步骤 1s，其余为 checkout/setup/install 等环境准备）。
+- 收官判定：
+  - 三道预测题 + 两次实测闭合；预测 1、3 的偏差已在实验中归因修正（第 3.5、9 节）；
+  - “干净机器 + restore 快照”下 MISS/cached 规则与本地一致，哈希传染在 CI 复演成功（范围按任务图修正）；
+  - 用户掌握了精确 key 与前缀回退、快照累积、缓存纯优化三层模型，两次追问（回退回退、为何只取最近一份）均指向机制本质。
+- **第二阶段主线（依赖治理 → 任务编排 → CI）收官。** 待用户选择：速查图 v2 / 分支保护规则 / 单元 4（版本发布）、单元 5（规则协作）需求触发。
