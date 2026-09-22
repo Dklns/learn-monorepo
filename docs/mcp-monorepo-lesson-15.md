@@ -67,11 +67,13 @@
 4. 观察：PR 上的 ci 是否自动运行、绿后 merge 按钮的变化；merge 后去 Actions
    看 master 上那次运行的结果与 restored key。
 
-## 5. 本课要点（先留白，实验后回填）
+## 5. 本课要点（实验后回填，2026-09-21）
 
-- 规则的服务端执行属性：配置在 GitHub，绕不过，与本地钩子本质不同。
-- 状态检查绑定的是**check 名**（job 名 `ci`），不是 workflow 文件名。
-- 日常流从"直接 push"变为"分支 + PR"：单人项目也值得，因为门禁不看人数。
+- 规则的服务端执行属性：配置在 GitHub，绕不过，与本地钩子本质不同；本地 commit 保留，拒绝发生在远端接受环节。
+- 状态检查绑定的是 **check 名**（workflow 名/job 名 `CI / ci`），不是 workflow 文件路径；ruleset 报错为 GH013，会逐条列出违反的规则。
+- 日常流从"直接 push"变为"分支 + PR"：单人项目也值得，门禁不看人数；但**门禁参数要匹配团队现实**——单人不能自批 PR，approvals 必须为 0，强制点 = CI 绿。
+- 缓存作用域单向：PR 运行可读 base 分支的快照；PR 里存的快照（refs/pull/N/merge 作用域）master 取不到。
+- 免费私有仓库不执行 rulesets（页面明示警告），需 public 或 Team 计划——配置前先确认执行前提。
 
 ## 6. 提交内容
 
@@ -88,3 +90,29 @@
 
 - 分支保护界面字段与报错文案随 GitHub 版本演进，以实际为准；
 - 截图/报错原文记录在案；管理员绕过行为以实测为准（预测题 3）。
+
+## 9. 实验记录与结课（2026-09-21，用户截图）
+
+### 配置过程（教师初审三处修正）
+
+- 用户使用新版 **Rulesets**（非经典 branch protection）：内容选型正确（Require PR、Required status check `ci`、Block force pushes、Restrict deletions、Bypass list 空 = 对所有人强制）。
+- 初审发现三处：①私有仓库不执行 rulesets（页面明示警告）→ 用户改为 public；②Enforcement status 为 Disabled → 改 Active；③Branch targeting 未配置 → 指向 master。
+- 途中参数修正：Required approvals 1 → 0（单人无法自批 PR，门禁会死锁）；原则记入第 5 节。
+
+### 直接 push 被拒（预测题 1 兑现）
+
+- 报错 GH013: Repository rule violations found，逐条列出 "Changes must be made through a pull request" 与 "Required status check ci is expected"；`! [remote rejected]`，本地 commit 保留。
+- 网络插曲：改可见性后一次 push 报 schannel SSL/TLS 握手失败，判定为连接层问题与可见性无关（第 13、14 课同机推送成功），重试后恢复。
+
+### PR 流程与合入（预测题 2 兑现）
+
+- PR #1（master ← ci/protect-test，docs 变更 +192 −17）：pull_request 触发，check 显示 `CI / ci (pull_request)` 带 Required 标签；Reviewers 为 No reviews 但 Ready to merge（approvals 0 生效）。
+- merge 按钮两帧：评估中（灰）→ Ready to merge 徽章 + No conflicts + 蓝色可点。
+- **合入后 master 运行：17s，Cache restored from key: turbo-943ec449b04b23b06250e655818f69d1affcf2b8（master 作用域最近快照，即 lesson-14 "只改 docs" 那次），turbo 5 successful, 5 cached, 15ms FULL TURBO。** merge commit 新 SHA → 前缀回退 → 哈希全命中，推理链与缓存键三层模型完全一致。
+- 教师补充验证（推断）：PR 运行那次（18s）同样 FULL TURBO，且其恢复的 key 也是 943ec44——实证 PR 可读 base 分支缓存（单向作用域）。
+
+### 结课判定
+
+- 预测题 1、2 全对；题 3 直觉正确、开关名由教师补齐（ruleset 对应 bypass 名单留空）。
+- 用户已完整走通"规则配置 → push 被拒 → 分支 + PR → 门禁绿 → 合入 → master 复验"全链路。
+- **第二阶段全部收官**：单元 1–3 + 收官实验（lesson-14）+ 分支保护（本课）+ 速查图 v2。剩余单元 4（版本发布）、单元 5（规则协作）保持需求触发。
