@@ -139,4 +139,13 @@ git push → 全新机器：checkout → pnpm/action-setup → setup-node
 - "配置正确" ≠ "检查生效"：规则挂载了，解析器缺失时照样静默跳过（lesson-10）。
 - 差量比对 ≠ 内容哈希：turbo 不记录"改没改"，只比对输入哈希（lesson-12）。
 - 精确缓存 key 不匹配 ≠ 缓存没用上：key 管搬运，哈希管使用（lesson-14）。
-- 本地钩子可被绕过，CI 才是强制执行点：规则要"合并前机器自动跑"才算数（lesson-10 → 13 主线）。
+- 本地钩子可被绕过，CI 才是强制执行点：规则要“合并前机器自动跑”才算数（lesson-10 → 13 主线）。
+
+## 13. 版本与发布：两种消费方（lesson-16）
+
+- 一个包，两种消费方：仓库内走 workspace 链接（永远最新源码，不看版本号）；仓库外走 registry（只认版本号）。`pnpm publish` 是翻译器：打包时把包自身声明里的 `workspace:*` 替换成真实版本（未实测：本包无 workspace 依赖）。
+- 版本号只对仓库外消费方有意义：apps 停在 0.0.0 无害；`private: true` 是防误发保险栓，拦截发生在真实发布那一步，dry-run 不检查（实测）。
+- 打包清单规则（实测）：默认全收；`"files": ["dist"]` 白名单收窄到 3 个文件；npm 只读包目录内的 .gitignore/.npmignore，父目录规则不计入——根 .gitignore 的 `dist/` 不会把产物排出 tarball。
+- monorepo 特有污染：`.turbo/turbo-build.log` 混进过 tarball（默认黑名单不认识工具产物目录），白名单一并解决。
+- semver 与模式取舍：改函数签名 = major；fixed（全仓库同号，版本即仓库快照，代价是无关包也被推号）vs independent（谁改升谁，代价是声明可能与仓库内“永远最新源码”的现实脱节）；changesets 把“版本何时定”变成流程而非自觉。
+- registry：本机指向腾讯镜像（只读代理），真实发布需切 registry.npmjs.org + 账号；保持可选需求。
