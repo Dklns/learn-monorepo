@@ -140,6 +140,7 @@ git push → 全新机器：checkout → pnpm/action-setup → setup-node
 - 差量比对 ≠ 内容哈希：turbo 不记录"改没改"，只比对输入哈希（lesson-12）。
 - 精确缓存 key 不匹配 ≠ 缓存没用上：key 管搬运，哈希管使用（lesson-14）。
 - 本地钩子可被绕过，CI 才是强制执行点：规则要“合并前机器自动跑”才算数（lesson-10 → 13 主线）。
+- “package.json 改动不影响哈希”被实测否定：哈希边界看文件在哪个目录，不看字段重不重要——docs 在所有包外 → FULL TURBO；包内 package.json 改一个字段 → 该包哈希变 + ^build 链传染 3/5 MISS（lesson-14、16）。
 
 ## 13. 版本与发布：两种消费方（lesson-16）
 

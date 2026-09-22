@@ -153,6 +153,29 @@ monorepo 的特有问题：仓库里有多个包，版本号怎么走？
 - changesets 本课只建立模型，实际接入视用户需求另开一课；
 - tarball 清单与替换行为以 `--dry-run` 实测输出为准，不凭记忆断言。
 
+## 9. 结课后缓存模型检验（2026-09-21，进行中）
+
+背景：文档回填 + private 复位需提交，master 受 ruleset 门禁，用户需走分支 + PR 流。教师顺势出题：合入后 master 上那次 CI，FULL TURBO 还是全 MISS？
+
+### 用户预测（原话）
+
+“FULL TURBO。因为 package.json 的修改不在 turbo 的输入哈希内。”
+
+### 教师反预测（待实测裁决）
+
+- 用户的哈希边界理解有误：docs 能拿 FULL TURBO（lesson-14）是因为 docs 在**所有包目录之外**；package.json 恰恰相反——它是包目录内的一等哈希输入（根 package.json 甚至在全球哈希里），内容变化即改变 shared 的任务哈希。
+- 预计：shared build MISS → A、B build 经 ^build 依赖边传染 MISS（3/5）；A、B lint 无依赖边、自身输入未变，restore-keys 前缀回退后命中（2/5）。即与 lesson-14 “改 shared 源码”同构：3/5 MISS + 2/5 命中。
+- 分歧点聚焦：package.json 是否在 turbo 任务哈希内。实测以 master 合入后那次运行为准。
+
+### 实测记录与裁决（2026-09-21，用户截图 + 教师核对）
+
+- PR #4（docs/lesson-16，含 private 复位）合入后 CI：succeeded 18s；restore-key 前缀回退命中 turbo-c46b438e…（14MB 快照恢复）；turbo 5 successful，**2 cached, 5 total**，3.389s，无 FULL TURBO。
+- 分布：app-a:lint、app-b:lint 命中；shared:build、app-a:build、app-b:build MISS——与教师反预测（3/5 MISS + 2/5 命中）完全一致。
+- 裁决：用户的“package.json 不在 turbo 输入哈希内”被实测否定；package.json 是包目录内的一等哈希输入。
+- 教益：哈希边界看**文件在哪个目录**，不看字段“重不重要”；docs 在所有包外 → 全命中，包内任何字节变化 → 该包哈希变 + ^build 链传染。命中者来自 restore-keys 恢复的快照（快照累积模型，lesson-14）。
+
+### 状态：裁决完成，本课全部收尾（private 复位 + 门禁流复练 + 缓存模型复验）。
+
 ## 8. 白名单复测与结课（2026-09-21，用户输出）
 
 - 复测：`"files": ["dist"]` 生效，tarball 精确收缩到 3 个文件（dist/index.js、dist/index.d.ts、package.json），.turbo 日志、src、tsconfig 全部消失；包体积 835B→555B。教师核对最终 package.json 通过。

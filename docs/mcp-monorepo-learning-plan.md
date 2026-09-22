@@ -23,12 +23,13 @@
 - 收官实验已结课（2026-09-21，docs/mcp-monorepo-lesson-14.md）：改 shared 推送实测 3/5 MISS（build 链失效，lint 无依赖边不传染，修正了双方 5/5 的预测）；只改 docs 推送 FULL TURBO 5/5（25ms），restore-keys 前缀回退与快照累积模型经两次追问补齐。第二阶段主线（依赖治理 → 任务编排 → CI）收官。
 - 速查图已升级 v2（2026-09-21）：docs/mcp-monorepo-cheatsheet.md 新增第 8–12 节（依赖治理、任务编排、Turborepo 缓存、CI、第二阶段易错点）；v1 七节原文保留；用户实验用临时标记行已随 v2 重写移除。
 - 分支保护已结课（2026-09-21，docs/mcp-monorepo-lesson-15.md）：Rulesets 指向 master（Required PR + status check ci + bypass 名单空），直接 push 实测 GH013 被拒；PR #1 走通（approvals 0 修正单人自批死锁），合入后 master FULL TURBO 5/5。第二阶段全部收官。
-- 单元 4 已结课（2026-09-21，lesson-16）：新知识经讲解＋实测两轮掌握；files 白名单实测生效（835B→555B，3 文件）；两项留档未实测（workspace:* 替换、真实发布拦截）；private 复位为唯一收尾项。速查图新增第 13 节。
+- 单元 4 已结课（2026-09-21，lesson-16）：新知识经讲解＋实测两轮掌握；files 白名单实测生效（835B→555B，3 文件）；private 已复位（PR #4）；结课后缓存检验：用户“package.json 不在哈希内”被实测否定，3/5 MISS + 2/5 命中与教师反预测一致；速查图第 12、13 节已补。
+- 真实发布进行中（2026-09-21）：lesson-17 三道预测题已作答——④ 层判定两次命中、workspace:* 不需改的理由正确；① vs ③ 的拦截顺序保留分歧待实测；改名成本为教师补讲。
 
 ## 11. 会话交接点（2026-09-21，供新会话恢复）
 
 - 当前位置：第二、三单元链路（单元 1–3 + 收官实验 + 分支保护）与单元 4（版本发布）均已结课；单元 5（规则协作）需求触发未启动；速查图 v2 已含第 13 节（版本与发布）。
-- 最近状态：单元 4 新增掌握：两种消费方、publish 翻译器角色、dry-run 不执行发布期检查、files 白名单与打包清单规则（父 .gitignore 不计入）、fixed/independent 取舍；仓库 registry 仍为腾讯镜像，真实发布需切 npmjs + 账号。
+- 最近状态：单元 4 新增掌握：两种消费方、publish 翻译器角色、dry-run 不执行发布期检查、files 白名单与打包清单规则（父 .gitignore 不计入）、fixed/independent 取舍；缓存模型经 lesson-16 复验：哈希边界看文件在包内/包外，package.json 是包内一等输入；仓库 registry 仍为腾讯镜像，真实发布需切 npmjs + 账号。
 - 最近状态：用户已掌握哈希传染的任务图边界（lint 无依赖边不传染，修正了全 MISS 预测）、restore-keys 前缀回退、快照累积（最新代 = 历代条目超集）、缓存纯优化（取错快照只慢不错）。
 - 待用户选择：单元 5 视需求启动；仓库现为 public + rulesets 门禁（master 只接受 CI 绿的 PR），日常流已切换为“分支 + PR”。
 - 新会话恢复方式：读本文件 + docs/mcp-monorepo-learning-profile.md + 最近讲义（lesson-10~16），即可继续授课。
