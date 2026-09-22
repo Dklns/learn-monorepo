@@ -2,7 +2,7 @@
 
 日期：2026-09-21
 前课：docs/mcp-monorepo-lesson-15.md
-状态：预测题三题与迁移小题均为新知识，讲解完成；复述题通过；等待用户提交 dry-run 实测结果（第 5 节）。
+状态：已结课（2026-09-21）：预测题与迁移小题均新知识，讲解＋实测两轮完成，白名单复测通过；唯一收尾项为 private 复位。详见第 8 节。
 
 ## 1. 问题背景
 
@@ -122,6 +122,26 @@ monorepo 的特有问题：仓库里有多个包，版本号怎么走？
    dist、tsconfig 有没有混进去）与替换后的依赖声明；
 3. 真实发布到 npm 为可选项（需要 npm 账号与 @learn scope），不做也不影响本课结论。
 
+## 5.5 dry-run 实测记录与点评（2026-09-21，用户输出）
+
+### 实测现象
+
+- 第 1 次（含 private）：dry-run 未报错，完整走完打包模拟；第 2 次为用户删除 private 后追加 `--no-git-checks`，清单一致（package.json 247B→228B = 用户手删的 private 行）。
+- 清单：dist/index.js、dist/index.d.ts、package.json、src/index.ts、tsconfig.json、**.turbo/turbo-build.log**，共 6 个文件。
+- registry 指向腾讯镜像 mirrors.cloud.tencent.com。
+
+### 预测 vs 实测
+
+| 预测 | 判定 | 实测结论 |
+| --- | --- | --- |
+| private 会让 pnpm publish 报错 | 未兑现（dry-run 范围内） | dry-run 不执行发布期检查——检查属于真实发布动作，预演模式直接跳过。与 lesson-15 的强制执行点分层同源：检查在哪一层拦得住，取决于动作在哪一层发生。真实发布拦截未验证（无 npm 账号，不强求） |
+| src/、tsconfig.json 会混入 tarball | 兑现 | 白名单缺失时默认全收 |
+| dist 可能被根 .gitignore 排除 | 未兑现 | 打包规则只读包目录内的 .gitignore/.npmignore（shared 下都没有），父目录规则不计入——“实现差异”的悬念以“不计入”方向落定 |
+| （未预测） | 新发现 | turbo 缓存日志 .turbo/turbo-build.log 混入包——默认黑名单不认识 monorepo 工具的产物目录，属 monorepo 特有污染 |
+| （未预测） | 新发现 | registry 为腾讯镜像（只读代理），真实发布需切换 registry.npmjs.org + 账号；真实发布保持可选，不入本课主线 |
+
+补充：本包无 workspace 依赖，workspace:* 替换规则无法在 dry-run 中观察，维持文档结论、标注未实测（证据边界第 7 节）。
+
 ## 6. 提交内容
 
 - 三道预测题原始作答；
@@ -132,3 +152,23 @@ monorepo 的特有问题：仓库里有多个包，版本号怎么走？
 - npm scope、账号、registry 配置不在本课必需范围；
 - changesets 本课只建立模型，实际接入视用户需求另开一课；
 - tarball 清单与替换行为以 `--dry-run` 实测输出为准，不凭记忆断言。
+
+## 8. 白名单复测与结课（2026-09-21，用户输出）
+
+- 复测：`"files": ["dist"]` 生效，tarball 精确收缩到 3 个文件（dist/index.js、dist/index.d.ts、package.json），.turbo 日志、src、tsconfig 全部消失；包体积 835B→555B。教师核对最终 package.json 通过。
+- 收尾待办（教师核对发现）：`"private": true` 尚未加回，提醒用户复位（A、B 暂无仓库外消费方，保险栓应保留；files 字段保留，属永久卫生）。
+
+### 本课要点
+
+- 版本号是仓库外消费方的坐标；仓库内消费只有源码，没有版本闸门。
+- publish 是两个世界的翻译器：替换包自身的 workspace 协议依赖；只打包包目录，消费方仓库不进流程。
+- dry-run 是预演，不执行发布期检查；强制执行点在哪一层，取决于动作在哪一层发生（与 lesson-15 同源）。
+- 打包清单默认全收，files 白名单收窄；父目录 .gitignore 不计入（实测修正预测）；.turbo 日志混包是 monorepo 特有污染。
+- fixed vs independent 的取舍本质：仓库内永远最新源码的现实，与对外版本声明之间的对账成本归谁。
+
+### 结课判定
+
+- 本课知识点均为新知识，经讲解＋实测两轮，白名单复测通过；workspace:* 替换与真实发布拦截两项留档未实测，不作为掌握内容记录。
+- 单元 4（版本与发布）结课。速查图 v2 新增第 13 节；路线第 10、11 节已更新。
+- 下一步待用户选择：单元 5（规则与协作）需求触发；或停留整理；或真实发布需求出现时续接（需 npm 账号）。
+
