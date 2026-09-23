@@ -82,6 +82,20 @@ lesson-15/16 反复出现的原则再次生效：**检查在哪一层，取决�
    锁文件里把你的包解析成了什么版本范围；
 6. 可选：`npm dist-tag ls @learn/shared`；发一个 `next` 标签体验多版本并存。
 
+### 裁决结果（2026-09-22，用户输出）
+
+- 状态确认：tarball 清单里 package.json 276B（含 private 行）、3 文件——private 在位；报错信息显示 registry 已切到 registry.npmjs.org（用户已提前完成切源）。
+- **裁决：用户预测兑现，教师 ① 层假设被否定。** pnpm publish 打包完成后直接报 ENEEDAUTH（③ 鉴权层），private 拦截全程未触发。
+- 三个附带发现：① private 字段未被从 tarball 里的 manifest 剔除（276B 原样进包）；② dry-run 时“需要登录”只是 warn 且继续跑完，真实发布是硬错误中断——预演与真实的又一处行为差异；③ 教师关于“本地文件检查先于网络层”的实现顺序假设不成立，检查顺序属实现细节，文档不能替代实测（本课第 6 节原则再次兑现）。
+- 未解问题（下一步实验）：登录后保持 private 再发，private 到底在哪一步被拦——客户端 pnpm 是否实现该检查、还是 registry 服务端拒收，待实测。
+
+### 裁决续（2026-09-23，登录后单变量实验）
+
+- 保持 private、登录后重发：打包后报 EPRIVATE（“This package has been marked as private. Remove the 'private' field...”）——结果 A：private 检查存在，但在鉴权之后触发；与 lesson-16 预测题 1 预言的报错文案一致，只是层级比教师猜的靠后。
+- 实测完整顺序：⓪ 清单完整性 → 打包 → ③ 鉴权（未登录 ENEEDAUTH）→ ①' private（EPRIVATE）→ ④ 待验证。教师的两层线性模型修正为“打包在前、鉴权先于本地 private 检查”的实测序。
+- 注：用户两次都加了 --no-git-checks，② git 工作区检查从未实测触发（工作区确实有未提交文档）；该层保持留档。
+- 下一步双实验：去掉 private 后先不加 --access public（验预测题 3：④ 层 restricted 收费拒），再加参数完成首发（验 ④ scope 归属 + ⑤ 落地）。
+
 ## 5. 提交内容
 
 - 三道预测题原始作答；
