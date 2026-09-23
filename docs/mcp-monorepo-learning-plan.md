@@ -24,12 +24,12 @@
 - 速查图已升级 v2（2026-09-21）：docs/mcp-monorepo-cheatsheet.md 新增第 8–12 节（依赖治理、任务编排、Turborepo 缓存、CI、第二阶段易错点）；v1 七节原文保留；用户实验用临时标记行已随 v2 重写移除。
 - 分支保护已结课（2026-09-21，docs/mcp-monorepo-lesson-15.md）：Rulesets 指向 master（Required PR + status check ci + bypass 名单空），直接 push 实测 GH013 被拒；PR #1 走通（approvals 0 修正单人自批死锁），合入后 master FULL TURBO 5/5。第二阶段全部收官。
 - 单元 4 已结课（2026-09-21，lesson-16）：新知识经讲解＋实测两轮掌握；files 白名单实测生效（835B→555B，3 文件）；private 已复位（PR #4）；结课后缓存检验：用户“package.json 不在哈希内”被实测否定，3/5 MISS + 2/5 命中与教师反预测一致；速查图第 12、13 节已补。
-- 真实发布进行中（2026-09-23）：实测顺序确定——⓪ 清单 → 打包 → ③ ENEEDAUTH → private EPRIVATE（登录后触发）；去 private 后到达 ④，被 2FA 政策拦截（E403，先于 access/restricted 与 scope 评估）；shasum 与 lesson-16 dry-run 完全一致（内容哈希确定性）；② git 检查始终未触发。剩：开 2FA → 发过 ④（含 scope 归属悬念）→ ⑤ 落地 → 仓库外收口。
+- 真实发布已结课（2026-09-24，lesson-17）：@dklns/shared@1.0.0 发布成功，五层检查实测链铸成（⓪清单→打包→③鉴权→private→④2FA→④restricted→⑤落地），教师两次顺序假设被否定、用户两次层级命中；原子改名、仓库外安装调用输出 ￥9.20，第一轮访谈方案闭环。可选续接：changesets、CI 自动发布、单元 5、停留整理。
 
 ## 11. 会话交接点（2026-09-21，供新会话恢复）
 
 - 当前位置：第二、三单元链路（单元 1–3 + 收官实验 + 分支保护）与单元 4（版本发布）均已结课；单元 5（规则协作）需求触发未启动；速查图 v2 已含第 13 节（版本与发布）。
-- 最近状态：单元 4 新增掌握：两种消费方、publish 翻译器角色、dry-run 不执行发布期检查、files 白名单与打包清单规则（父 .gitignore 不计入）、fixed/independent 取舍；缓存模型经 lesson-16 复验：哈希边界看文件在包内/包外，package.json 是包内一等输入；仓库 registry 仍为腾讯镜像，真实发布需切 npmjs + 账号。
+- 最近状态：单元 4 全部结课（含真实发布主线）：两种消费方同时存活、publish 翻译器与五层检查实测链、files 白名单、原子改名、内容哈希确定性（turbo 与 npm 打包同源）、semver/restricted/2FA 实测；@dklns/shared@1.0.0 已上 npm；缓存模型经 lesson-16 复验（哈希边界看文件在包内/包外）。
 - 最近状态：用户已掌握哈希传染的任务图边界（lint 无依赖边不传染，修正了全 MISS 预测）、restore-keys 前缀回退、快照累积（最新代 = 历代条目超集）、缓存纯优化（取错快照只慢不错）。
 - 待用户选择：单元 5 视需求启动；仓库现为 public + rulesets 门禁（master 只接受 CI 绿的 PR），日常流已切换为“分支 + PR”。
 - 新会话恢复方式：读本文件 + docs/mcp-monorepo-learning-profile.md + 最近讲义（lesson-10~16），即可继续授课。
