@@ -1,5 +1,5 @@
-// TODO：通过包名 @learn/shared 导入 formatPrice，不复制实现或跨目录导入源码。
-import { formatPrice } from "@learn/shared";
+// TODO：通过包名 @dklns/shared 导入 formatPrice，不复制实现或跨目录导入源码。
+import { formatPrice } from "@dklns/shared";
 
 export default function App() {
   const amount = 99.9;
@@ -22,7 +22,7 @@ export default function App() {
           本应用的输入：<code>{amount}</code>
         </p>
         <p className="footer">
-          <code>@learn/app-b</code> · 共享包接入练习
+          <code>@dklns/app-b</code> · 共享包接入练习
         </p>
       </section>
     </main>

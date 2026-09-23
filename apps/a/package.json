@@ -1,10 +1,10 @@
 {
-  "name": "@learn/app-a",
+  "name": "@dklns/app-a",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@learn/shared": "workspace:*",
+    "@dklns/shared": "workspace:*",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },

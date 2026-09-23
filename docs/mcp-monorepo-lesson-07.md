@@ -8,7 +8,7 @@
 
 ## 1. 前一步的证据
 
-用户提供从 @learn/app-a 上下文执行 Node 导入 @learn/shared 的命令和输出 12.30，并报告“成功了”。
+用户提供从 @dklns/app-a 上下文执行 Node 导入 @dklns/shared 的命令和输出 12.30，并报告“成功了”。
 
 教师随后通过 MCP 读取到：
 
@@ -20,7 +20,7 @@
 
 ## 2. 本轮分工
 
-教师准备 HTML、React 启动文件、简单页面样式、应用 tsconfig、脚本和第三方依赖声明；保留用户已正确写入的 @learn/shared: workspace:*。
+教师准备 HTML、React 启动文件、简单页面样式、应用 tsconfig、脚本和第三方依赖声明；保留用户已正确写入的 @dklns/shared: workspace:*。
 
 用户负责把两个 App.tsx 接到共享函数，不把 formatPrice 实现复制进应用，也不从相对路径穿越到 packages/shared/src。
 
@@ -28,7 +28,7 @@
 
 ```text
 React 应用 A ── 包名导入 ──┐
-                          ├── @learn/shared → dist/index.js
+                          ├── @dklns/shared → dist/index.js
 React 应用 B ── 包名导入 ──┘
 ```
 
@@ -74,7 +74,7 @@ React 应用的 tsconfig 使用 Bundler 模块解析、react-jsx 和 noEmit，�
 
 ## 5. 用户任务：修改两个 App.tsx
 
-1. 在 apps/a/src/App.tsx 中，通过包名 @learn/shared 导入 formatPrice。
+1. 在 apps/a/src/App.tsx 中，通过包名 @dklns/shared 导入 formatPrice。
 2. 将 displayPrice 的占位文字替换为调用 formatPrice(amount) 得到的结果。
 3. 对 apps/b/src/App.tsx 做同样的接入，保留 B 自己的 amount。
 
@@ -95,8 +95,8 @@ pnpm install
 ### 先确保共享包产物存在，再检查并构建两个应用
 
 ```bash
-pnpm --filter @learn/shared run build
-pnpm --filter "@learn/app-*" run build
+pnpm --filter @dklns/shared run build
+pnpm --filter "@dklns/app-*" run build
 ```
 
 第二条用包名模式匹配 A、B，执行两者的类型检查与 Vite 构建；不把同名目录等同于包名选择。若失败，停下反馈对应错误。
@@ -106,13 +106,13 @@ pnpm --filter "@learn/app-*" run build
 终端一：
 
 ```bash
-pnpm --filter @learn/app-a run dev
+pnpm --filter @dklns/app-a run dev
 ```
 
 终端二：
 
 ```bash
-pnpm --filter @learn/app-b run dev
+pnpm --filter @dklns/app-b run dev
 ```
 
 在运行这些命令的同一台电脑的浏览器中打开：
@@ -130,7 +130,7 @@ pnpm --filter @learn/app-b run dev
 
 | 检查点 | A | B |
 | --- | --- | --- |
-| 导入语句 | `import { formatPrice } from "@learn/shared";` | 同左 |
+| 导入语句 | `import { formatPrice } from "@dklns/shared";` | 同左 |
 | 调用方式 | `const displayPrice = formatPrice(amount);` | 同左 |
 | 输入值 | 12.3 | 99.9 |
 | 页面显示（用户报告） | 12.30 | 99.90 |

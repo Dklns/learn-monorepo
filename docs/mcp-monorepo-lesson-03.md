@@ -43,27 +43,27 @@ packages:
 
 ```json
 {
-  "name": "@learn/shared",
+  "name": "@dklns/shared",
   "version": "1.0.0",
   "private": true
 }
 ```
 
-shared 是目录名，@learn/shared 是包名。@learn 是此示例的包名作用域，不要求为了本地使用先注册远程组织。private: true 用于防止误发布，不阻止本地 workspace 消费；version 字段本身也不代表已发布。
+shared 是目录名，@dklns/shared 是包名。@dklns 是此示例的包名作用域，不要求为了本地使用先注册远程组织。private: true 用于防止误发布，不阻止本地 workspace 消费；version 字段本身也不代表已发布。
 
 ### apps/a/package.json（片段）
 
 ```json
 {
-  "name": "@learn/app-a",
+  "name": "@dklns/app-a",
   "private": true,
   "dependencies": {
-    "@learn/shared": "workspace:*"
+    "@dklns/shared": "workspace:*"
   }
 }
 ```
 
-@learn/shared 标识要依赖哪个包。workspace:* 要求使用当前 workspace 中该名称的本地包；* 表示这里不增加具体版本范围限制。如果 workspace 中没有符合声明的包，安装会报错，不退回远程注册表寻找同名包。
+@dklns/shared 标识要依赖哪个包。workspace:* 要求使用当前 workspace 中该名称的本地包；* 表示这里不增加具体版本范围限制。如果 workspace 中没有符合声明的包，安装会报错，不退回远程注册表寻找同名包。
 
 这里只解释按包名使用 workspace:* 的情形；workspace 协议也有其他形式，暂不展开。普通版本范围在某些 pnpm 配置下也可能链接本地包，但本课选择显式的 workspace 协议以表达意图，不依赖那些配置默认值。
 
@@ -74,7 +74,7 @@ pnpm-workspace.yaml 找到成员目录
               ↓
 读取成员 package.json 的 name，识别包
               ↓
-A 用 @learn/shared: workspace:* 声明本地依赖
+A 用 @dklns/shared: workspace:* 声明本地依赖
 ```
 
 目录解决“在哪里”，包名解决“是谁”，依赖声明解决“谁使用谁”。根配置发现包，不会代替 A 声明依赖。
@@ -85,14 +85,14 @@ A 用 @learn/shared: workspace:* 声明本地依赖
 
 假设使用上面的配置：
 
-1. 将 packages/shared 目录改名为 packages/validators，package.json 中的 name 仍是 @learn/shared，其他内容不变，也没有额外写死旧路径。A 的依赖键 @learn/shared 需要跟着改名吗？为什么？
-2. 另一个独立情境：根配置只保留 apps/*，不再包含 packages/*，也没有其他成员规则包含 shared。磁盘上仍有 packages/shared，但 A 仍声明 @learn/shared: workspace:*。在干净环境重新安装时，pnpm 会自动去远程下载同名包吗？为什么？
+1. 将 packages/shared 目录改名为 packages/validators，package.json 中的 name 仍是 @dklns/shared，其他内容不变，也没有额外写死旧路径。A 的依赖键 @dklns/shared 需要跟着改名吗？为什么？
+2. 另一个独立情境：根配置只保留 apps/*，不再包含 packages/*，也没有其他成员规则包含 shared。磁盘上仍有 packages/shared，但 A 仍声明 @dklns/shared: workspace:*。在干净环境重新安装时，pnpm 会自动去远程下载同名包吗？为什么？
 
 第一题检查目录名与包名的区别；第二题检查文件存在、workspace 成员身份与本地依赖要求的区别。两个情境分别判断，不累积修改，也不要求实际执行。
 
 ### 用户原始回答
 
-1. A 的依赖键不需要跟着改名，因为 pnpm-workspace.yaml 中记录的是 'package/*'，这意味着 workspace 能够找到 packages/validators 目录下去，然后根据其 pacakge.json 中的 name 识别为包 @learn/shared。所以 A 的安装不会出错
+1. A 的依赖键不需要跟着改名，因为 pnpm-workspace.yaml 中记录的是 'package/*'，这意味着 workspace 能够找到 packages/validators 目录下去，然后根据其 pacakge.json 中的 name 识别为包 @dklns/shared。所以 A 的安装不会出错
 2. 不会去远程下载同名包，因为已经指明了 workspace 协议，就代表要在 workspace 里找，如果 workspace 中找不到则会报错
 
 ### 教师反馈

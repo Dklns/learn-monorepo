@@ -6,7 +6,7 @@
 
 ## 1. 问题背景
 
-到目前为止，`@learn/shared` 从未"发布"过：A、B 通过 `workspace:*` 消费的
+到目前为止，`@dklns/shared` 从未"发布"过：A、B 通过 `workspace:*` 消费的
 是本地源码链接，改了就用新的，版本号 `1.0.0` 形同虚设。这在仓库内完全成立。
 
 但你在第一轮访谈里自己提出过另一条路："独立公共仓库 + tag 标识更新 +
@@ -24,14 +24,14 @@
 
 ```text
 仓库内（现状）：
-  apps/a ──"@learn/shared": "workspace:*"──→ packages/shared
+  apps/a ──"@dklns/shared": "workspace:*"──→ packages/shared
   apps/b ──────────────────────────────────↗
   · pnpm 把它解析成本地链接，不看版本号
   · 锁文件记录的是"链接到本地目录"，不是某个远程版本
 
 仓库外（假设 shared 要给别的项目用）：
   packages/shared ──pnpm publish──→ npm registry（打包成 tarball，带版本号）
-  外部消费方 ──"@learn/shared": "^1.x"──→ npm registry 下载安装
+  外部消费方 ──"@dklns/shared": "^1.x"──→ npm registry 下载安装
 ```
 
 关键不对称：
@@ -69,7 +69,7 @@ monorepo 的特有问题：仓库里有多个包，版本号怎么走？
    `pnpm publish` 会发生什么？另外：A、B 的版本号停在 `0.0.0`，为什么从来没
    造成过任何问题？（提示：想一想这两个包有没有"仓库外消费方"）
 2. 假设去掉 private、把 shared 升到 `1.1.0` 并成功发布。发布时 pnpm 会把
-   A、B 的 `package.json` 里的 `"@learn/shared": "workspace:*"` 处理成什么？
+   A、B 的 `package.json` 里的 `"@dklns/shared": "workspace:*"` 处理成什么？
    发布到 npm 上的那个 tarball 里，这条依赖长什么样？为什么要处理，不处理会怎样？
 3. 你改了 shared 某个函数的签名（破坏性变更），A、B 在同一次提交里同步改好、
    CI 绿、合入 master。发布 shared 时版本号该升哪一位？如果仓库里还有第三个包
@@ -120,7 +120,7 @@ monorepo 的特有问题：仓库里有多个包，版本号怎么走？
 1. 先 `pnpm publish --dry-run`（会因 private 报错，观察报错原文——预测题 1 兑现）；
 2. 临时去掉 `private: true` 再 `--dry-run`：观察打包文件清单（哪些进了 tarball，
    dist、tsconfig 有没有混进去）与替换后的依赖声明；
-3. 真实发布到 npm 为可选项（需要 npm 账号与 @learn scope），不做也不影响本课结论。
+3. 真实发布到 npm 为可选项（需要 npm 账号与 @dklns scope），不做也不影响本课结论。
 
 ## 5.5 dry-run 实测记录与点评（2026-09-21，用户输出）
 

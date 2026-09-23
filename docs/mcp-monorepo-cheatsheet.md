@@ -48,7 +48,7 @@ tsconfig（rootDir/outDir）决定 产物文件在哪 → package.json 的 expor
 ```text
 改 packages/shared/src/index.ts
   │  保存后什么都不会自动发生
-  ├─ 开发预览链路：重建 shared（pnpm --filter @learn/shared run build）
+  ├─ 开发预览链路：重建 shared（pnpm --filter @dklns/shared run build）
   │     → Vite 监听到产物文件变化 → 页面自动刷新（文件监听行为，不是"依赖热更新"）
   └─ 上线链路：重建 shared → 重建各应用产物（文件名哈希会变）→ 部署
         部署没发生，线上用户就拿不到任何东西
@@ -94,8 +94,8 @@ tsconfig（rootDir/outDir）决定 产物文件在哪 → package.json 的 expor
 
 - 拓扑序：`pnpm -r run build` 按依赖图自动排队，无需手写顺序；不违反依赖关系的排队方式都合法。
 - 选择器方向（实测）：
-  - `--filter ...@learn/shared` = shared 及其**依赖者**（A、B）→ 改共享包后的重建范围用这个；
-  - `--filter @learn/shared...` = shared 及其**依赖**（无本地依赖时仅 shared）。
+  - `--filter ...@dklns/shared` = shared 及其**依赖者**（A、B）→ 改共享包后的重建范围用这个；
+  - `--filter @dklns/shared...` = shared 及其**依赖**（无本地依赖时仅 shared）。
 - 任务图只含 workspace 内的包；zod 等外部依赖不进图。
 - 失败传染方向：沿"被谁依赖"向消费方传播，不向它依赖的包传播；CI 中任一失败都阻塞合并。
 - pnpm 解决"顺序"和"范围"，不解决"没变就跳过"——每次都真实执行。
