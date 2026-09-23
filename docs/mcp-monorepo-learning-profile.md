@@ -217,7 +217,7 @@
 - 讲义：docs/mcp-monorepo-lesson-03.md。
 - 讲解重点：成员路径由 pnpm-workspace.yaml 识别，包名由 package.json 的 name 提供，消费者通过 workspace:* 声明本地依赖；三者职责不同。
 - 理解检查：目录改名但包名不变是否影响依赖键；成员规则排除 shared 后，workspace:* 是否会回退到远程包。
-- 用户原始回答 1：“A 的依赖键不需要跟着改名，因为 pnpm-workspace.yaml 中记录的是 'package/*'，这意味着 workspace 能够找到 packages/validators 目录下去，然后根据其 pacakge.json 中的 name 识别为包 @learn/shared。所以 A 的安装不会出错”
+- 用户原始回答 1：“A 的依赖键不需要跟着改名，因为 pnpm-workspace.yaml 中记录的是 'package/*'，这意味着 workspace 能够找到 packages/validators 目录下去，然后根据其 pacakge.json 中的 name 识别为包 @dklns/shared。所以 A 的安装不会出错”
 - 用户原始回答 2：“不会去远程下载同名包，因为已经指明了 workspace 协议，就代表要在 workspace 里找，如果 workspace 中找不到则会报错”
 - 判断：按题设 packages/* 理解，第一题的目录名与包名区分正确；第二题关于 workspace 协议不回退远程的判断正确。本课两项概念检查通过，保留配置拼写校准记录。
 - 拼写校准：回答写的是 package/*，题设实际为 packages/*。若真实配置写成 package/*，且无其他规则纳入该包，就匹配不到 packages/validators。不能将这个拼写差异当成无影响的配置。文件名应为 package.json，而非 pacakge.json。
@@ -239,7 +239,7 @@
 - 讲解重点：pnpm 安装连接依赖；消费工具定位包并解析 exports；目标文件要存在，且入口模块需要提供所导入的命名导出。
 - 教学策略：只讲“共享 TS 包先构建成 JS，再供应用消费”，与直接消费 TS 源码的方案区分，不把构建顺序泛化到所有 monorepo。
 - 理解检查：安装成功但入口产物不存在；产物存在但没有导出所需函数。判断故障所在层级与处理方式。
-- 用户原始回答 1：“此时的 A 并不能正常使用 formatPrice。卡在了 import { formatPrice } from "@learn/shared"，@learn/shared 并没有导出 formatPrice，需要补充 @learn/shared 的构建产物”
+- 用户原始回答 1：“此时的 A 并不能正常使用 formatPrice。卡在了 import { formatPrice } from "@dklns/shared"，@dklns/shared 并没有导出 formatPrice，需要补充 @dklns/shared 的构建产物”
 - 用户原始回答 2：“不能这样使用，应该修改 src/index.js 先从内部文件中导入进来，再导出，修改之后需要构建产物”
 - 判断 1：不能正常使用的结论和补构建产物的修复方向正确；但把入口文件缺失说成未导出函数，混合了两个故障层级，需要巩固。
 - 判断 2：修正源入口导出并重新构建的方向正确；按题设应修改 src/index.ts 而不是 src/index.js。可直接重新导出内部函数，不必分两条语句先导入再导出。
@@ -268,7 +268,7 @@
 ### 最小实践第 1 步：首次审查
 
 - 用户提交：“写好了”。本轮仅读取已保存文件，不推断未保存的编辑器内容。
-- A、B 均在自己的 dependencies 中声明 @learn/shared：体现了正确的消费方和包名归属。
+- A、B 均在自己的 dependencies 中声明 @dklns/shared：体现了正确的消费方和包名归属。
 - pnpm-workspace.yaml 仍是 packages: []，未纳入三个子包；A 的值为 workspace: .，本练习需要 workspace:*；B 的值为 workspace: *，已建议统一为不带空格的规范形式。未执行安装，不把 B 的空格单独断言为已验证的运行错误。
 - shared 中新增 exports 的根入口 ./dist/index.js：形式合理，但未验证产物生成和消费。
 - 教师提供准确修正片段并解释目录 glob、workspace 版本范围、exports 根入口三种语境的差别，不直接替用户修改配置。
@@ -303,14 +303,14 @@
 
 - 用户提交：“修好了”。实际读取确认 rootDir: ./src、outDir: ./dist，包入口 ./dist/index.js 与预计产物路径一致。
 - 证据：用户在反馈后正确修正输入／输出布局，编译配置审查通过；不能因此断言已独立掌握路径推导或实际构建成功。
-- 已提供具体操作：在仓库根目录执行 pnpm install，成功后定向构建 @learn/shared，再在 @learn/app-a 上下文用 Node 导入共享函数。
+- 已提供具体操作：在仓库根目录执行 pnpm install，成功后定向构建 @dklns/shared，再在 @dklns/app-a 上下文用 Node 导入共享函数。
 - 已说明安装可能联网、会生成依赖与锁文件；逐条执行、遇错停止。详见 docs/mcp-monorepo-lesson-06.md 第 9 节。
 - 预期（未观察到）：dist/index.js、dist/index.d.ts，以及 A 调用 formatPrice(12.3) 打印 12.30。
 - 当前等待用户执行报告；教师本轮没有修改配置或运行这些命令，也未将目标能力标记为完成。
 
 ### 最小实践第 2 步完成与 React 接入准备
 
-- 用户提供从 @learn/app-a 上下文导入 formatPrice 并调用的命令及输出 12.30，报告“成功了”。
+- 用户提供从 @dklns/app-a 上下文导入 formatPrice 并调用的命令及输出 12.30，报告“成功了”。
 - 教师实际读取 shared/dist/index.js 和 shared/dist/index.d.ts，确认存在符合配置的 JS 实现与类型签名；没有重跑用户命令。
 - 能力证据：在指导与修正后，用户跑通了本练习的共享包构建和 A 的 Node 消费；尚不代表无提示搭建、排错或完整 React 应用交付能力。
 - 新任务：docs/mcp-monorepo-lesson-07.md。教师准备 A、B 的 React/Vite 基础文件与第三方依赖声明，保留用户正确的 workspace:*；用户负责在两个 App.tsx 中按包名导入并调用共享函数。
@@ -320,7 +320,7 @@
 ### 最小实践第 3 步：两个 React 页面接入共享函数
 
 - 用户报告两个应用构建成功，A 页面显示 12.30、B 页面显示 99.90，符合任务预期。
-- 教师实际读取 apps/a/src/App.tsx 与 apps/b/src/App.tsx：两者都使用 `import { formatPrice } from "@learn/shared";`，分别以 12.3 和 99.9 调用，没有复制实现或跨目录引用源码。
+- 教师实际读取 apps/a/src/App.tsx 与 apps/b/src/App.tsx：两者都使用 `import { formatPrice } from "@dklns/shared";`，分别以 12.3 和 99.9 调用，没有复制实现或跨目录引用源码。
 - 核对方式说明：仅凭页面数字无法排除硬编码，因此以实际文件内容为准；构建成功与浏览器显示仍属用户报告，教师未重跑命令或查看浏览器。
 - 能力证据：在教师提供页面样板的前提下，用户完成了两个应用的共享依赖接入并跑通页面；仍属引导式完成，不代表独立搭建整套工程或独立排错的能力。
 - 下一步：docs/mcp-monorepo-lesson-08.md，讨论共享包改动的影响范围、构建顺序与部署边界。

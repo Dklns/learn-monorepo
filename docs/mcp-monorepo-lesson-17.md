@@ -77,10 +77,10 @@ lesson-15/16 反复出现的原则再次生效：**检查在哪一层，取决�
 3. 兑现 ①：保持 `private: true` 真实运行 `pnpm publish`，记录报错原文；
 4. 去掉 `private`，按预测题 3 的结论补齐参数，完成首次发布；
 5. 仓库外验证（收口实验）：在仓库外目录 `npm init -y` 后
-   `npm install @learn/shared`，写三行代码调用 `formatPrice` 并运行；
+   `npm install @dklns/shared`，写三行代码调用 `formatPrice` 并运行；
    观察：安装的包里有什么文件（对照 lesson-16 的 files 白名单）、
    锁文件里把你的包解析成了什么版本范围；
-6. 可选：`npm dist-tag ls @learn/shared`；发一个 `next` 标签体验多版本并存。
+6. 可选：`npm dist-tag ls @dklns/shared`；发一个 `next` 标签体验多版本并存。
 
 ### 裁决结果（2026-09-22，用户输出）
 
@@ -96,11 +96,27 @@ lesson-15/16 反复出现的原则再次生效：**检查在哪一层，取决�
 - 注：用户两次都加了 --no-git-checks，② git 工作区检查从未实测触发（工作区确实有未提交文档）；该层保持留档。
 - 下一步双实验：去掉 private 后先不加 --access public（验预测题 3：④ 层 restricted 收费拒），再加参数完成首发（验 ④ scope 归属 + ⑤ 落地）。
 
+### ④ 层内新发现（2026-09-23，用户输出）
+
+- 去掉 private 后两发（默认 access 与 --access public）均到达服务端，报同一 E403：“Two-factor authentication or granular access token with bypass 2fa enabled is required to publish packages.”
+- 教益一：④ 层内部也有子检查顺序——npm 当前的 2FA 发布政策先于 access/restricted 收费评估（题 3 预测的 402 未出现；--access public 与否不影响结果）。题 3 判定修正：④ 层方向对，但首个拦人者是 2FA 策略。
+- 教益二：scope 归属仍未被评估（@dklns 名下能否发布，悬至 2FA 解决后）。
+- 教益三（内容哈希确定性）：shasum 4ce83447… 与 lesson-16 白名单复测 dry-run 完全一致——同样文件内容打出逐字节相同的 tarball，turbo 输入哈希哲学在 npm 世界的同源实现。
+- 附注：本次未加 --no-git-checks，② git 检查仍未触发（工作区有未提交文档）——pnpm 该检查范围比预期窄（或仅查分支），实测留档不推断细节。
+- 解决路径（二选一）：账号开启 2FA 后发布时输 OTP；或建 granular access token 写入 .npmrc（CI 自动发布的伏笔）。凭据自理，不进文档。
+
+### 排障插曲（2026-09-23，E404）
+
+- 现象：--access public 重发时 pnpm 触发浏览器网页认证（Printed auth URL + Press ENTER），随后 PUT 报 E404 “could not be found or you do not have permission”。
+- 关键语义：registry 对 404 刻意模糊“包不存在”与“无权访问”（防探测包存在性），单凭报错无法区分两个假设——H1 浏览器认证未完成、会话凭据缺失；H3 scope 归属被拒（若 404 即归属信号）。
+- 鉴别手段：pnpm whoami（看客户端当前身份）+ 预检 ~learn 页面（scope 归属）；记录在案，待用户实测。
+- 若 scope 未被占用：可选建同名组织保住 @dklns/shared，或改名 @<用户名>/shared（体验原子改名 vs registry 永久性）。
+
 ## 5. 提交内容
 
 - 三道预测题原始作答；
 - 第 ① 层报错原文、首次发布成功输出（或 ④ 层 403 原文与改名过程）；
-- 仓库外项目 `node` 调用输出 + 安装清单里 `@learn/shared` 的版本范围。
+- 仓库外项目 `node` 调用输出 + 安装清单里 `@dklns/shared` 的版本范围。
 
 ## 6. 证据边界
 

@@ -43,10 +43,10 @@
 ## 4. 动手（预测点评后进行）
 
 1. 根目录全量构建：`pnpm -r run build`，观察输出里的顺序；
-2. 定向重建：`pnpm -r --filter ...@learn/shared run build`，
+2. 定向重建：`pnpm -r --filter ...@dklns/shared run build`，
    观察这次构建了哪些包、顺序如何；
-3. 对照实验：`pnpm -r --filter @learn/shared... run build`，
-   记录两种选择器（`...@learn/shared` 与 `@learn/shared...`）构建范围的差别；
+3. 对照实验：`pnpm -r --filter @dklns/shared... run build`，
+   记录两种选择器（`...@dklns/shared` 与 `@dklns/shared...`）构建范围的差别；
 4. 全量重跑一遍 `pnpm -r run build`，用秒表或输出时间感受"什么都没改却全部重来"的成本；
 5. 思考题（不动手）：如果 shared 的 src 一个字没变，但 dist 被人删了，
    第 2 步的命令能恢复它吗？依据是什么？
@@ -69,7 +69,7 @@
 ### 用户回答（原话）
 
 1. “先构建 shared 然后是 A B。依据是 pnpm 可以形成依赖链”
-2. “给 pnpm --filter @learn/shared run build 再增加长选项指定打包依赖它的包”
+2. “给 pnpm --filter @dklns/shared run build 再增加长选项指定打包依赖它的包”
 3. “组织依赖链，打包依赖。能”
 
 ### 教师判定
@@ -77,7 +77,7 @@
 | 题 | 判定 | 说明 |
 | --- | --- | --- |
 | 1 | 方向正确，机制待精确 | “形成依赖链”应精确为：pnpm 从各包 package.json 的依赖声明推导任务图，按拓扑序执行（被依赖者先）；声明即任务图输入 |
-| 2 | 意图正确，机制未知 | 用户猜“加长选项指定依赖它的包”，方向对；实际是选择器语法：`...@learn/shared`（前缀 ... 表示含依赖者），动手环节验证 |
+| 2 | 意图正确，机制未知 | 用户猜“加长选项指定依赖它的包”，方向对；实际是选择器语法：`...@dklns/shared`（前缀 ... 表示含依赖者），动手环节验证 |
 | 3 | 需纠正 | 未理解题意。正确答案：全量重跑时三个构建全部真实重新执行，pnpm 只能排序和选范围，无法跳过未变更——浪费的是全部时间；“能避免”的答案是“不能”，需内容哈希缓存（Turborepo，下一课） |
 
 - 记录性质：题为预测；题 1、2 将由实验验证，题 3 的“不能”将由全量重跑的耗时体感佐证。
@@ -87,8 +87,8 @@
 ### 用户报告
 
 - `pnpm -r run build`：构建 shared、A、B，耗时 0.9s。
-- `pnpm -r --filter ...@learn/shared run build`：构建 shared、A、B，耗时 0.8s。
-- `pnpm -r --filter @learn/shared... run build`：仅构建 shared，很快。
+- `pnpm -r --filter ...@dklns/shared run build`：构建 shared、A、B，耗时 0.8s。
+- `pnpm -r --filter @dklns/shared... run build`：仅构建 shared，很快。
 - 重复全量构建结果相同。
 - 思考题（dist 被删能否恢复）：能，因为该命令就是为 shared 及其依赖者构建产物。
 

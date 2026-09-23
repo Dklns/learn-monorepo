@@ -34,11 +34,11 @@
 ├── package.json               根级身份、private 和已检查的 pnpm 版本
 ├── pnpm-workspace.yaml        暂为 packages: []，由你补成员规则
 ├── apps/
-│   ├── a/package.json         @learn/app-a；dependencies 暂为空
-│   └── b/package.json         @learn/app-b；dependencies 暂为空
+│   ├── a/package.json         @dklns/app-a；dependencies 暂为空
+│   └── b/package.json         @dklns/app-b；dependencies 暂为空
 └── packages/
     └── shared/
-        ├── package.json      @learn/shared；尚未配置入口或构建
+        ├── package.json      @dklns/shared；尚未配置入口或构建
         └── src/index.ts      示例 formatPrice 函数
 ```
 
@@ -94,8 +94,8 @@ B 也要使用同一个共享包。在 B 自己的 dependencies 中补上相应�
 | 文件 | 读取到的内容 | 反馈 |
 | --- | --- | --- |
 | pnpm-workspace.yaml | packages: [] | 列表仍为空，尚未涵盖三个子包；如果用户在编辑器里已改，需确认保存 |
-| apps/a/package.json | @learn/shared: "workspace: ." | 包名正确；本任务应使用 workspace:*。点号不表示任意本地版本，不应把 exports 中的根入口点号套到依赖协议上 |
-| apps/b/package.json | @learn/shared: "workspace: *" | 方向正确；统一写成规范的 workspace:*，去掉冒号后空格，不依赖工具对范围字符串的容错。本轮未实测，不断言这个空格本身必然导致安装失败 |
+| apps/a/package.json | @dklns/shared: "workspace: ." | 包名正确；本任务应使用 workspace:*。点号不表示任意本地版本，不应把 exports 中的根入口点号套到依赖协议上 |
+| apps/b/package.json | @dklns/shared: "workspace: *" | 方向正确；统一写成规范的 workspace:*，去掉冒号后空格，不依赖工具对范围字符串的容错。本轮未实测，不断言这个空格本身必然导致安装失败 |
 | packages/shared/package.json | exports 的根入口映射到 ./dist/index.js | 提前写出的入口映射形式合理，可以保留；尚未配置并执行构建，不能把入口声明当成产物已经存在或应用已可运行 |
 
 ### 请用户自行修改并保存
@@ -112,7 +112,7 @@ A 和 B 的 package.json 中，保留其他字段，把共享依赖统一为：
 
 ```json
 "dependencies": {
-  "@learn/shared": "workspace:*"
+  "@dklns/shared": "workspace:*"
 }
 ```
 
@@ -131,8 +131,8 @@ A 和 B 的 package.json 中，保留其他字段，把共享依赖统一为：
 用户提交：“改好了”。重新读取保存文件后的结果：
 
 - pnpm-workspace.yaml 已包含 packages/* 和 apps/*，两个规则的先后顺序不影响本例的成员匹配。本项静态检查通过。
-- A 已把原来的点号改为星号，A、B 当前都写为 "@learn/shared": "workspace: *"，包名与本地协议方向正确。
-- 尚待统一的小细节：将两个文件中字符串值内部的空格删除，写为 "@learn/shared": "workspace:*"。依赖键后、值引号前的 JSON 排版空格可以保留；引号内的空格属于字符串内容，普通 JSON 格式化不会自动删除它。
+- A 已把原来的点号改为星号，A、B 当前都写为 "@dklns/shared": "workspace: *"，包名与本地协议方向正确。
+- 尚待统一的小细节：将两个文件中字符串值内部的空格删除，写为 "@dklns/shared": "workspace:*"。依赖键后、值引号前的 JSON 排版空格可以保留；引号内的空格属于字符串内容，普通 JSON 格式化不会自动删除它。
 - 本轮没有运行 pnpm，仍不把该空格断言为已验证的安装失败；本练习统一使用明确、规范的协议写法。
 - 教师未修改用户工程配置，只记录检查结果。请用户保存两处修改后再次提交；暂不安装依赖。
 - 已确认的进展：workspace 成员路径规则已落到真实文件；不因剩余空格问题重新评定用户整体能力。
@@ -142,7 +142,7 @@ A 和 B 的 package.json 中，保留其他字段，把共享依赖统一为：
 用户提交：“改好了”。本轮重新读取保存文件确认：
 
 - pnpm-workspace.yaml 中 packages/* 与 apps/* 正确涵盖三个子包。
-- A、B 均声明 "@learn/shared": "workspace:*"，和 shared 的 name 对应。
+- A、B 均声明 "@dklns/shared": "workspace:*"，和 shared 的 name 对应。
 - shared 已有 exports 根入口 ./dist/index.js，可保留进入下一步。
 - 结论：第 1 步配置审查通过。这是用户在教师反馈后完成的实践，不能表述为无提示独立搭建。
 - 尚未执行 pnpm 安装，因此不声称链接、模块解析或应用运行已经成功。

@@ -59,7 +59,7 @@ Monorepo 把所有文件放进同一个仓库，**物理上全部可达**。边�
 1. 在 apps/a 安装开发依赖（含 TS 解析器：ESLint 核心解析器不认 TS/TSX 语法，缺它连文件都解析不了）：
 
    ```bash
-   pnpm --filter @learn/app-a add -D eslint eslint-plugin-import typescript-eslint
+   pnpm --filter @dklns/app-a add -D eslint eslint-plugin-import typescript-eslint
    ```
 
 2. 在 apps/a 新建 `eslint.config.js`（flat config），核心两条规则：
@@ -86,7 +86,7 @@ Monorepo 把所有文件放进同一个仓库，**物理上全部可达**。边�
 
 3. 在 apps/a 的 package.json 加 `"lint": "eslint src"`；
 4. 故意犯案：在 App.tsx 里临时加一条相对路径 import shared 的语句；
-5. 运行 `pnpm --filter @learn/app-a run lint`，记录是否报错、报什么错；
+5. 运行 `pnpm --filter @dklns/app-a run lint`，记录是否报错、报什么错；
 6. 删掉犯案代码，再跑一次 lint，确认干净。
 
 ## 5. 本课要点
@@ -129,7 +129,7 @@ Monorepo 把所有文件放进同一个仓库，**物理上全部可达**。边�
 ### 教学要点
 
 - “配置正确”与“检查生效”是两回事：规则挂载≠规则能触发，解析器是隐形前提。
-- 报错自动建议（`@learn\shared\src\src`）在 Windows 路径分隔符与目录导入场景下并不精准，但方向正确；规范写法以 exports 根入口 `@learn/shared` 为准。
+- 报错自动建议（`@dklns\shared\src\src`）在 Windows 路径分隔符与目录导入场景下并不精准，但方向正确；规范写法以 exports 根入口 `@dklns/shared` 为准。
 - 本课未验证：`no-restricted-imports` 拦截跨应用 `../b/**` 的分支（用户未犯此案）；留给 B 迁移练习时顺带验证。
 
 ### 课后练习

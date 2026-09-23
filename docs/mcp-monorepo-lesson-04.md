@@ -17,11 +17,11 @@
 ## 2. import 的概念链路
 
 ```ts
-import { formatPrice } from '@learn/shared';
+import { formatPrice } from '@dklns/shared';
 ```
 
 ```text
-A 声明并安装了 @learn/shared 的 workspace 依赖
+A 声明并安装了 @dklns/shared 的 workspace 依赖
                   ↓
 消费者的模块解析器定位到 shared 包
                   ↓
@@ -49,7 +49,7 @@ packages/shared/
 
 ```json
 {
-  "name": "@learn/shared",
+  "name": "@dklns/shared",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -61,7 +61,7 @@ packages/shared/
 
 - name：包身份，A 的依赖键与它对应。
 - type: module：在本例的包内，将 .js 文件按 ES 模块解释，便于使用 import/export。
-- exports 中的点号 .：包根入口，即 import '@learn/shared' 这种不带子路径的导入。
+- exports 中的点号 .：包根入口，即 import '@dklns/shared' 这种不带子路径的导入。
 - ./dist/index.js：相对于该包目录的目标文件，不是相对于仓库根目录或应用 A。
 - exports 是入口路径声明，不会生成 dist，也不会自动编译 TypeScript。
 
@@ -105,13 +105,13 @@ shared 源码 → 构建 shared → dist/index.js → A 构建时消费
 两个情境独立考虑。假设 workspace 成员、包名与依赖声明正确，安装与链接已成功；应用解析器遵循上面 exports，不存在额外路径别名或源码回退。
 
 1. shared 只有 src/index.ts，尚未构建出 dist/index.js。也没有安装生命周期脚本或其他步骤自动生成产物。此时 A 能仅凭安装成功就正常 import 并使用 formatPrice 吗？卡在哪一步，需要补上什么？
-2. dist/index.js 已存在，但它只导出了 parsePrice。formatPrice 虽然在内部文件中定义并导出，却没有从包根入口导出。A 写 import { formatPrice } from '@learn/shared' 能成功吗？应检查、修改哪一层，并在本课策略下完成什么后续步骤？
+2. dist/index.js 已存在，但它只导出了 parsePrice。formatPrice 虽然在内部文件中定义并导出，却没有从包根入口导出。A 写 import { formatPrice } from '@dklns/shared' 能成功吗？应检查、修改哪一层，并在本课策略下完成什么后续步骤？
 
 不用写命令。分别说明“包定位”“入口文件”“模块导出”哪一层出了问题即可；不要求知道具体错误消息。
 
 ### 用户原始回答
 
-1. 此时的 A 并不能正常使用 formatPrice。卡在了 import { formatPrice } from "@learn/shared"，@learn/shared 并没有导出 formatPrice，需要补充 @learn/shared 的构建产物
+1. 此时的 A 并不能正常使用 formatPrice。卡在了 import { formatPrice } from "@dklns/shared"，@dklns/shared 并没有导出 formatPrice，需要补充 @dklns/shared 的构建产物
 2. 不能这样使用，应该修改 src/index.js 先从内部文件中导入进来，再导出，修改之后需要构建产物
 
 ### 教师反馈
@@ -150,7 +150,7 @@ shared 源码 → 构建 shared → dist/index.js → A 构建时消费
 这不是函数名清单，它声明的是包入口路径。因此：
 
 - 从同一个根入口增加 parsePrice 等函数时，通常修改 src/index.ts 的模块导出并重新构建，不需要在 package.json 的 exports 中逐一添加函数名。
-- 如果想新增 @learn/shared/price 这样的公共导入子路径，或改变目标产物路径，才需要相应调整 exports。
+- 如果想新增 @dklns/shared/price 这样的公共导入子路径，或改变目标产物路径，才需要相应调整 exports。
 - 例如新增子路径可以配置 "./price": "./dist/price.js"，但必须同时让构建产生这个文件，不能只写映射。
 - TypeScript 编译器 tsc 默认不会因为编译源码而自动给 package.json 写入 exports；它生成哪些 JS 和声明文件取决于编译配置。
 - package.json 的 exports 通常由开发者／模板／特定生成工具维护；源码里的 export 或重新导出通常由开发者编写；dist 里的对应 JS 导出通常来自编译／打包产物。

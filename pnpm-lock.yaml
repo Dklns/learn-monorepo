@@ -14,7 +14,7 @@ importers:
 
   apps/a:
     dependencies:
-      '@learn/shared':
+      '@dklns/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       react:
@@ -51,7 +51,7 @@ importers:
 
   apps/b:
     dependencies:
-      '@learn/shared':
+      '@dklns/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       react:

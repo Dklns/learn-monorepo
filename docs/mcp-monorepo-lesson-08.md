@@ -8,7 +8,7 @@
 
 ## 1. 先预测，再动手
 
-当前状态：packages/shared/src/index.ts 里的 formatPrice 会把数字格式化为两位小数字符串。两个应用都通过包名 @learn/shared 调用它，页面显示 12.30 和 99.90。
+当前状态：packages/shared/src/index.ts 里的 formatPrice 会把数字格式化为两位小数字符串。两个应用都通过包名 @dklns/shared 调用它，页面显示 12.30 和 99.90。
 
 假设你现在把 formatPrice 的行为改掉（例如改成三位小数，或加上货币符号）。请先只回答，不执行命令：
 
@@ -45,7 +45,7 @@ export function formatPrice(amount: number): string {
 在仓库根目录执行：
 
 ```bash
-pnpm --filter @learn/shared run build
+pnpm --filter @dklns/shared run build
 ```
 
 ### 第 4 步：再看页面
@@ -59,7 +59,7 @@ pnpm --filter @learn/shared run build
 ### 第 5 步（可选，验证生产构建）
 
 ```bash
-pnpm --filter "@learn/app-*" run build
+pnpm --filter "@dklns/app-*" run build
 ```
 
 观察构建是否仍然成功。这一步说明应用自身的构建产物需要重新生成，和开发服务器的行为是两件事。
@@ -112,7 +112,7 @@ pnpm --filter "@learn/app-*" run build
 
 1. 改完 src、还没有重新构建 shared 时，页面应无变化。这一步排除“改源码直接生效”的猜想。
 2. 重新构建 shared 后先不要手动刷新，观察浏览器表现：自动刷新、必须手动刷新，还是必须重启服务？逐条记录。
-3. 想要硬证据：开发者工具 → Network → 找到来自 @learn/shared 的模块请求 → 看返回内容是 toFixed(2) 还是 toFixed(3)。这比只看页面数字更可靠。
+3. 想要硬证据：开发者工具 → Network → 找到来自 @dklns/shared 的模块请求 → 看返回内容是 toFixed(2) 还是 toFixed(3)。这比只看页面数字更可靠。
 4. 若 B 的服务器一直没开，按追问 1 重启 B，验证是否显示 99.900。
 
 ## 9. 实验结果与教师核对（2026-09-20）

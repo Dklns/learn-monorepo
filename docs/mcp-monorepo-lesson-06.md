@@ -11,8 +11,8 @@
 重新读取保存文件后确认：
 
 - pnpm-workspace.yaml 包含 packages/* 与 apps/*，顺序不影响本例。
-- apps/a/package.json 和 apps/b/package.json 都在 dependencies 中声明 @learn/shared: workspace:*。
-- shared 的 name 为 @learn/shared，exports 根入口指向 ./dist/index.js。
+- apps/a/package.json 和 apps/b/package.json 都在 dependencies 中声明 @dklns/shared: workspace:*。
+- shared 的 name 为 @dklns/shared，exports 根入口指向 ./dist/index.js。
 
 第 1 步通过配置文件审查。这是用户在反馈后完成的配置，不是无提示独立完成；也尚未执行安装来验证链接。
 
@@ -185,7 +185,7 @@ pnpm install
 ### 第 2 条：构建共享包
 
 ```bash
-pnpm --filter @learn/shared run build
+pnpm --filter @dklns/shared run build
 ```
 
 --filter 按包名选择 shared，run build 在这个包的上下文执行 package.json 的构建脚本，即 tsc -p tsconfig.json。本条不构建 A、B，也不启动 React 页面。
@@ -202,7 +202,7 @@ packages/shared/dist/index.d.ts
 ### 第 3 条：从 A 的上下文消费共享包
 
 ```bash
-pnpm --filter @learn/app-a exec node --input-type=module -e "import { formatPrice } from '@learn/shared'; console.log(formatPrice(12.3));"
+pnpm --filter @dklns/app-a exec node --input-type=module -e "import { formatPrice } from '@dklns/shared'; console.log(formatPrice(12.3));"
 ```
 
 --filter 选择 A，exec 在 A 的包上下文启动 Node；--input-type=module 让 -e 中的代码按 ES 模块处理。该方式可以在添加 React 页面前验证 A 的真实依赖解析、shared 的入口映射及命名导出，不是直接用相对路径绕过包配置。
@@ -228,7 +228,7 @@ pnpm --filter @learn/app-a exec node --input-type=module -e "import { formatPric
 用户贴出的命令：
 
 ```bash
-pnpm --filter @learn/app-a exec node --input-type=module -e "import { formatPrice } from '@learn/shared'; console.log(formatPrice(12.3));"
+pnpm --filter @dklns/app-a exec node --input-type=module -e "import { formatPrice } from '@dklns/shared'; console.log(formatPrice(12.3));"
 ```
 
 用户贴出的输出：12.30。用户同时报告“成功了”。

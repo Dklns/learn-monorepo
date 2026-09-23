@@ -27,8 +27,8 @@
 在仓库根目录执行，确保 dist 反映 shared 当前源码：
 
 ```bash
-pnpm --filter @learn/shared run build
-pnpm --filter "@learn/app-*" run build
+pnpm --filter @dklns/shared run build
+pnpm --filter "@dklns/app-*" run build
 ```
 
 ### 第 2 步：部署 A
@@ -52,9 +52,9 @@ pnpm --filter "@learn/app-*" run build
 ### 第 5 步：变更实验（本课核心）
 
 1. 改 `packages/shared/src/index.ts`（例如去掉 ￥ 或改回 toFixed(2)）；
-2. 只执行 `pnpm --filter @learn/shared run build`；
+2. 只执行 `pnpm --filter @dklns/shared run build`；
 3. 刷新两个线上 URL：变了吗？（预期：不变——线上是旧产物的快照）
-4. `pnpm --filter "@learn/app-*" run build` 后再刷新线上 URL：变了吗？（预期：仍不变）
+4. `pnpm --filter "@dklns/app-*" run build` 后再刷新线上 URL：变了吗？（预期：仍不变）
 5. 把 A 的新 dist 重新拖到 Netlify（站点 → Deploys 里重新拖拽或用 Drag & drop），
    刷新 A 的线上 URL：现在变了吗？B 呢？
 

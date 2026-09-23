@@ -24,7 +24,7 @@
 - 速查图已升级 v2（2026-09-21）：docs/mcp-monorepo-cheatsheet.md 新增第 8–12 节（依赖治理、任务编排、Turborepo 缓存、CI、第二阶段易错点）；v1 七节原文保留；用户实验用临时标记行已随 v2 重写移除。
 - 分支保护已结课（2026-09-21，docs/mcp-monorepo-lesson-15.md）：Rulesets 指向 master（Required PR + status check ci + bypass 名单空），直接 push 实测 GH013 被拒；PR #1 走通（approvals 0 修正单人自批死锁），合入后 master FULL TURBO 5/5。第二阶段全部收官。
 - 单元 4 已结课（2026-09-21，lesson-16）：新知识经讲解＋实测两轮掌握；files 白名单实测生效（835B→555B，3 文件）；private 已复位（PR #4）；结课后缓存检验：用户“package.json 不在哈希内”被实测否定，3/5 MISS + 2/5 命中与教师反预测一致；速查图第 12、13 节已补。
-- 真实发布进行中（2026-09-23）：实测顺序确定——⓪ 清单 → 打包 → ③ ENEEDAUTH → private EPRIVATE（登录后触发，结果 A）；② git 检查因 --no-git-checks 从未触发；registry 已切 npmjs；剩 ④（restricted 收费拒 + scope 归属）与 ⑤ 首发落地。
+- 真实发布进行中（2026-09-23）：实测顺序确定——⓪ 清单 → 打包 → ③ ENEEDAUTH → private EPRIVATE（登录后触发）；去 private 后到达 ④，被 2FA 政策拦截（E403，先于 access/restricted 与 scope 评估）；shasum 与 lesson-16 dry-run 完全一致（内容哈希确定性）；② git 检查始终未触发。剩：开 2FA → 发过 ④（含 scope 归属悬念）→ ⑤ 落地 → 仓库外收口。
 
 ## 11. 会话交接点（2026-09-21，供新会话恢复）
 
